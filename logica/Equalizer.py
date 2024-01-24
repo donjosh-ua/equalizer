@@ -67,4 +67,4 @@ def equalizer_play(equalizer, Fs):
 
     # Reproducir la señal ecualizada
     sd.play(audio_ecualizado, Fs)
-    sd.wait()  # Esperar a que termine la reproducción
+    # sd.wait()  # Esperar a que termine la reproducción
