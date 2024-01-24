@@ -1,23 +1,32 @@
+from glob import glob
 from Bits_sample import bits_per_sample
 from FFT_process import fft_process
-from glob import glob
 from Validador import Validador
-
 import Equalizer as eq
 
 
 def ecualizador(song):
 
-    FFT, freqs, Fs = fft_process(song)
-            
-    cutoff_begin = int(input("Ingresar frecuencia inicial del filtro\n"))
-    cutoff_end = int(input("Ingresar frecuencia final del filtro\n"))
+    try:
+        FFT, freqs, Fs = fft_process(song)
+    except:
+        print('No se pudo leer el audio')
+        return
 
-    filter, name_filter = eq.filters(freqs, cutoff_begin, cutoff_end)
+    print('<1> Sub-Bass\n<2> Bass\n<3> Low-Midrange\n<4> Upper-Midrange\n<5> Presence\n<6> Brilliance')
+    tipo_filtro = Validador.val_int('Escoja el tipo de filtro')
+
+    if tipo_filtro not in range(1, 7):
+        print('Opcion no valida')
+        return
+
+    gain_out_freqs = Validador.val_float('Ingrese la ganancia para las frecuencias fuera del filtro')
+    gain_in_freqs = Validador.val_float('Ingrese la ganancia para las frecuencias dentro del filtro')
+    filter, name_filter, cortes = eq.filters(freqs, tipo_filtro, gain_out_freqs, gain_in_freqs)
 
     while(True):
 
-        print("<1> Reproducir audio\n<2> Informacion\n<3> Graficas\n<4> Atras")
+        print('<1> Reproducir audio\n<2> Informacion\n<3> Graficas\n<4> Salir')
         option = input('>> ')
 
         match option:
@@ -28,7 +37,7 @@ def ecualizador(song):
             case '2':
                 bits_per_sample(song)
                 print('Frecuencia de muestreo', Fs)
-                print('Frecuencias ingresadas', cutoff_begin, ' ', cutoff_end)
+                print('Frecuencias ingresadas', cortes[0], 'Hz', cortes[1], 'Hz')
                 print('Filtro usado', name_filter)
 
             case '3':
@@ -45,6 +54,7 @@ def run():
 
     file = ''
     songs = glob('./datos' + '/*.wav')
+    
     while(True):
         
         print("<1> Elegir audio\n<2> Ecualizar\n<3> Salir")
@@ -59,10 +69,7 @@ def run():
                 file = songs[Validador.val_int() - 1]
 
             case '2':
-                if file == '':
-                    print('No se ha seleccionado ningun audio')
-                else:
-                    ecualizador(file)
+                print('No hay audio') if file == '' else ecualizador(file)
 
             case '3':
                 print('Saliendo...')

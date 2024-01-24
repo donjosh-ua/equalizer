@@ -3,59 +3,61 @@ import scipy.fft as fft
 import sounddevice as sd
 from matplotlib import pyplot as plt
 
+
 def equalize(FFT, filter):
     return FFT * filter
 
-def filters(freqs, cutoff_begin, cutoff_end):
+
+def filters(freqs, tipo, gain_outter_freqs=0, gain_inner_freqs=1):
     
-    freq_name = {(16, 60): 'Sub-Bass',
-                 (60, 250): 'Bass',
-                 (250, 2000): 'Low Mids',
-                 (2000, 4000): 'High Mids',
-                 (4000, 6000): 'Presence',
-                 (6000, 16000): 'Brilliance',
-    }
+    freq_name = {1: [(16, 60),      'Sub-Bass'],
+                 2: [(60, 250),     'Bass'],
+                 3: [(250, 2000),   'Low-Mids'],
+                 4: [(2000, 4000),  'High-Mids'],
+                 5: [(4000, 6000),  'Presence'],
+                 6: [(6000, 16000), 'Brilliance']}
 
-    filtro = np.zeros(len(freqs))
-    filter_name = 'Default'  # Valor predeterminado si no se encuentra en ningún rango
+    tupla, nombre = freq_name[tipo]
 
-    for tupla, nombre in freq_name.items():
-        if cutoff_begin in range(tupla[0], tupla[1]) and cutoff_end in range(tupla[0], tupla[1]):
-            filtro[(freqs >= cutoff_begin) & (freqs < cutoff_end)] = 1
-            filter_name = nombre  # Actualizar el nombre del filtro
+    filtro = np.empty(len(freqs))
+    filtro.fill(gain_outter_freqs)
+    filtro[(freqs >= tupla[0]) & (freqs < tupla[1])] = gain_inner_freqs
 
-    return filtro, filter_name
+    return filtro, nombre, tupla
 
 
 def equalizer_plot(FFT, freqs, filter, filter_name):
     
-    plt.figure(figsize=(15, 10))
+    lim = len(FFT) // 2
+
+    plt.figure(figsize=(15, 7))
 
     plt.subplot(3, 1, 1)
-    plt.plot(freqs[:len(FFT) // 2], np.abs(FFT)[:len(FFT) // 2], label = 'FFT audio input', color = 'blue')
+    plt.plot(freqs[:lim], np.abs(FFT)[:lim], label='FFT audio input', color='blue')
     plt.ylabel('Amplitud')
     plt.xlabel('Frecuencia (Hz)')
-    plt.title('Espectro de Frecuencia del Audio (Antes de Ecualización)')
+    plt.title('Audio pre-ecualización')
 
     # Visualizar el filtro 
     plt.subplot(3, 1, 2)
 
-    plt.plot(freqs[:len(FFT) // 2], filter[:len(FFT) // 2], label = filter_name, color = 'red')
+    plt.plot(freqs[:lim], filter[:lim], label=filter_name, color='red')
     plt.ylabel('Amplitud')
     plt.xlabel('Frecuencia (Hz)')
-    plt.title('Respuesta en Frecuencia del Filtro')
+    plt.title('Filtro')
     plt.legend()
 
     # Visualizar el espectro de frecuencia después de aplicar el filtro 
     plt.subplot(3, 1, 3)
-    plt.plot(freqs[:len(FFT) // 2], np.abs(equalize(FFT, filter))[:len(FFT) // 2], label = 'FFT audio output', color = 'green')
+    plt.plot(freqs[:lim], np.abs(equalize(FFT, filter))[:lim], label='FFT audio output', color='green')
     plt.ylabel('Amplitud')
     plt.xlabel('Frecuencia (Hz)')
-    plt.title('Espectro de Frecuencia del Audio (Después de Ecualización)')
+    plt.title('Audio post-ecualización')
     plt.legend()
 
     plt.tight_layout()
     plt.show()
+
 
 def equalizer_play(equalizer, Fs):
     
@@ -66,5 +68,8 @@ def equalizer_play(equalizer, Fs):
     audio_ecualizado /= np.max(np.abs(audio_ecualizado))
 
     # Reproducir la señal ecualizada
+    # try:
     sd.play(audio_ecualizado, Fs)
-    # sd.wait()  # Esperar a que termine la reproducción
+    # except:
+    #     print('No se pudo reproducir el audio')
+    #     return
