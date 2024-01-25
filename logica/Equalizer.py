@@ -32,6 +32,8 @@ def equalizer_plot(FFT, freqs, filter, filter_name):
 
     plt.figure(figsize=(15, 7))
 
+    print(lim)
+
     plt.subplot(3, 1, 1)
     plt.plot(freqs[:lim], np.abs(FFT)[:lim], label='FFT audio input', color='blue')
     plt.ylabel('Amplitud')
@@ -68,8 +70,8 @@ def equalizer_play(equalizer, Fs):
     audio_ecualizado /= np.max(np.abs(audio_ecualizado))
 
     # Reproducir la señal ecualizada
-    # try:
-    sd.play(audio_ecualizado, Fs)
-    # except:
-    #     print('No se pudo reproducir el audio')
-    #     return
+    try:
+        sd.play(audio_ecualizado, Fs)
+    except:
+        print('No se pudo reproducir el audio')
+        return

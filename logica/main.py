@@ -8,7 +8,7 @@ import Equalizer as eq
 def ecualizador(song):
 
     try:
-        FFT, freqs, Fs = fft_process(song)
+        FFT, freqs, Fs = fft_process(song, 2)
     except:
         print('No se pudo leer el audio')
         return
@@ -35,10 +35,10 @@ def ecualizador(song):
                 eq.equalizer_play(eq.equalize(FFT, filter), Fs)
             
             case '2':
-                bits_per_sample(song)
-                print('Frecuencia de muestreo', Fs)
-                print('Frecuencias ingresadas', cortes[0], 'Hz', cortes[1], 'Hz')
-                print('Filtro usado', name_filter)
+                print('Bits por muestra:', bits_per_sample(song))
+                print('Frecuencia de muestreo:', Fs)
+                print('Frecuencias ingresadas:', cortes[0], 'Hz', cortes[1], 'Hz')
+                print('Filtro usado:', name_filter)
 
             case '3':
                 eq.equalizer_plot(FFT, freqs, filter, name_filter)
