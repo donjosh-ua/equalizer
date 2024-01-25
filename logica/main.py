@@ -69,7 +69,9 @@ def run():
                 for i in range(len(songs)):
                     print(f'<{(i + 1)}> {songs[i].split('/')[-1]}')
 
-                file = songs[Validador.val_int() - 1]
+                index = Validador.val_int()
+
+                file = songs[index - 1] if index - 1 in range(len(songs)) else ''
 
             case '2':
                 print('No hay audio') if file == '' else ecualizador(file)
