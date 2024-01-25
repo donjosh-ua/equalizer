@@ -5,10 +5,13 @@ from Validador import Validador
 import Equalizer as eq
 
 
+FACTOR_DECIMACION = 5
+
+
 def ecualizador(song):
 
     try:
-        FFT, freqs, Fs = fft_process(song, 2)
+        FFT, freqs, Fs = fft_process(song, factor=FACTOR_DECIMACION)
     except:
         print('No se pudo leer el audio')
         return
@@ -32,7 +35,7 @@ def ecualizador(song):
         match option:
 
             case '1':
-                eq.equalizer_play(eq.equalize(FFT, filter), Fs)
+                eq.equalizer_play(eq.equalize(FFT, filter), Fs, factor=FACTOR_DECIMACION)
             
             case '2':
                 print('Bits por muestra:', bits_per_sample(song))
